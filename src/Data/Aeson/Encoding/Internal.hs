@@ -81,6 +81,7 @@ import qualified Data.ByteString.Builder as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Short as ST
+import Numeric (showFFloat)
 
 -- | An encoding of a JSON value.
 --
@@ -317,8 +318,14 @@ word = Encoding . B.wordDec
 integer :: Integer -> Encoding
 integer = Encoding . B.integerDec
 
+realDec :: RealFloat a => a -> Builder
+realDec d = B.string7 (showFFloat p d "")
+    where
+        p | d == fromInteger (round d) = Just 0
+          | otherwise = Nothing
+
 float :: Float -> Encoding
-float = realFloatToEncoding $ Encoding . B.floatDec
+float = realFloatToEncoding $ Encoding . realDec
 
 -- |
 --
@@ -335,7 +342,7 @@ float = realFloatToEncoding $ Encoding . B.floatDec
 -- "\"-inf\""
 --
 double :: Double -> Encoding
-double = realFloatToEncoding $ Encoding . B.doubleDec
+double = realFloatToEncoding $ Encoding . realDec
 
 scientific :: Scientific -> Encoding
 scientific = Encoding . EB.scientific

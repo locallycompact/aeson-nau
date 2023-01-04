@@ -48,9 +48,9 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.Builder as B
 import Data.ByteString.Builder.Prim ((>$<), (>*<))
 import qualified Data.ByteString.Builder.Prim as BP
-import Data.ByteString.Builder.Scientific (scientificBuilder)
+import Data.ByteString.Builder.Scientific (FPFormat(..), formatScientificBuilder, scientificBuilder)
 import Data.Char (chr, ord)
-import Data.Scientific (Scientific, base10Exponent, coefficient)
+import Data.Scientific (Scientific, base10Exponent, isInteger)
 import Data.Text.Encoding (encodeUtf8BuilderEscaped)
 import Data.Time (UTCTime(..))
 import Data.Time.Calendar (Day(..), toGregorian)
@@ -143,8 +143,8 @@ c2w c = fromIntegral (ord c)
 -- | Encode a JSON number.
 scientific :: Scientific -> Builder
 scientific s
-    | e < 0 || e > 1024 = scientificBuilder s
-    | otherwise = B.integerDec (coefficient s * 10 ^ e)
+    | e < -1024 || e > 1024 = scientificBuilder s
+    | otherwise = formatScientificBuilder Fixed (if isInteger s then Just 0 else Nothing) s
   where
     e = base10Exponent s
 
