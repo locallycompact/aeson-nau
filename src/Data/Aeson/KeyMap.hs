@@ -93,6 +93,8 @@ module Data.Aeson.KeyMap (
 
     -- * Key Type
     Key,
+
+    findWithDefault,
 ) where
 
 -- Import stuff from Prelude explicitly
@@ -224,6 +226,12 @@ foldl f z (KeyMap m) = M.foldl f z m
 
 foldl' :: (b -> a -> b) -> b -> KeyMap a -> b
 foldl' f z (KeyMap m) = M.foldl' f z m
+
+findWithDefault :: v -- ^ Default value to return.
+                -> Key -> KeyMap v -> v
+findWithDefault def k t = case lookup k t of
+    Just v -> v
+    _      -> def
 
 -- | Reduce this map by applying a binary operator to all
 -- elements, using the given starting value (typically the
